@@ -9,7 +9,7 @@ const navItems = [
   { label: "Notes", href: "/notes", icon: FiBookOpen },
 ];
 
-export default function Navbar() {
+const Navbar = () => {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
@@ -53,4 +53,6 @@ export default function Navbar() {
       })}
     </nav>
   );
-}
+};
+
+export default Navbar;

@@ -70,4 +70,15 @@ body {
   --color-glow: var(--glow);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --animate-border-beam: border-beam 3s linear infinite;
+}
+
+@keyframes border-beam {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

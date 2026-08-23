@@ -10,7 +10,7 @@ import { LuSun } from "react-icons/lu";
 import { motion } from "framer-motion";
 import Navbar from "./Navbar";
 
-export default function Header() {
+const Header = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -127,7 +127,7 @@ export default function Header() {
               className="
                 transition-transform
                 duration-300
-                group-hover:rotate-12
+                group-hover:rotate-360
               "
             />
             <span className="hidden text-sm font-medium sm:inline">GitHub</span>
@@ -136,4 +136,6 @@ export default function Header() {
       </div>
     </header>
   );
-}
+};
+
+export default Header;
