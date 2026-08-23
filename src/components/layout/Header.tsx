@@ -55,10 +55,10 @@ export default function Header() {
               bg-clip-text
               text-2xl
               font-bold
-              italic
               tracking-wide
               text-transparent
               drop-shadow-sm
+              font-(family-name:--font-audiowide)
             "
           >
             Namaste AI
