@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiHome, FiBookOpen } from "react-icons/fi";
 
-const navItems = [
+export const navItems = [
   { label: "Home", href: "/", icon: FiHome },
   { label: "Notes", href: "/notes", icon: FiBookOpen },
 ];
