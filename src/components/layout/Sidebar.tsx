@@ -12,7 +12,7 @@ import { LuSun } from "react-icons/lu";
 import { RiMoonClearLine } from "react-icons/ri";
 import { FaGithub } from "react-icons/fa";
 import { useTheme } from "@/context/ThemeContext";
-import iconImg from "@/app/icon.png";
+import iconImg from "@/app/icon.jpg";
 import { navItems } from "./Navbar";
 
 const backdropVariants = {

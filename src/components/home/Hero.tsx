@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { FiArrowRight } from "react-icons/fi";
 import { HiOutlineSparkles } from "react-icons/hi2";
-import heroImg from "../../../public/images/hero-ai.jpg";
+import heroImg from "../../../public/images/hero-ai.webp";
 import { AiOutlineFundProjectionScreen } from "react-icons/ai";
 
 const fadeUp = {
@@ -88,7 +88,7 @@ const Hero = () => {
             >
               Namaste AI
             </a>{" "}
-            by{" "}
+            course by Akshay Saini ·{" "}
             <a
               href="https://namastedev.com?_aff=946684804112"
               target="_blank"
