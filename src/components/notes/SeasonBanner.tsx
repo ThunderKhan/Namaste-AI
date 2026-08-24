@@ -20,7 +20,8 @@ export const SeasonBanner = ({ season, episodesCount }: SeasonBannerProps) => {
           </span>
         </div>
 
-        <span className="text-xs font-medium text-text-muted">
+        <span className="inline-flex items-center gap-1.5 rounded-xl bg-accent/10 px-3 py-1 text-xs font-bold text-accent border border-accent/20">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
           {episodesCount} {episodesCount === 1 ? "Episode" : "Episodes"} Available
         </span>
       </div>
