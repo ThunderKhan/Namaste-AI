@@ -1,7 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { seasonsData, Episode } from "@/data/notesData";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import {
+  seasonsData,
+  Episode,
+  NotePage,
+  getEpisodeBySlug,
+  getPageBySlug,
+  getPageUrl,
+  getEpisodeUrl,
+  getSeasonUrl,
+} from "@/data/notesData";
 import { SeasonTabs } from "./SeasonTabs";
 import { EpisodeCard } from "./EpisodeCard";
 import { NotesViewerModal } from "./NotesViewerModal";
@@ -10,17 +19,108 @@ import { SeasonBanner } from "./SeasonBanner";
 import { NotesHero } from "./NotesHero";
 import { FiSearch } from "react-icons/fi";
 
-const Notes = () => {
-  const [selectedSeasonId, setSelectedSeasonId] = useState<string>("season-1");
+interface NotesProps {
+  initialSeasonSlug?: string;
+  initialEpisodeSlug?: string;
+  initialPageSlug?: string;
+}
+
+const Notes = ({ initialSeasonSlug, initialEpisodeSlug, initialPageSlug }: NotesProps) => {
+  const initialData = useMemo(() => {
+    if (initialSeasonSlug && initialEpisodeSlug) {
+      if (initialPageSlug) {
+        const pageResult = getPageBySlug(initialSeasonSlug, initialEpisodeSlug, initialPageSlug);
+        if (pageResult && pageResult.episode.isAvailable && pageResult.episode.pages.length > 0) {
+          return {
+            episode: pageResult.episode,
+            pageIndex: pageResult.pageIndex,
+          };
+        }
+      }
+      const result = getEpisodeBySlug(initialSeasonSlug, initialEpisodeSlug);
+      if (result && result.episode.isAvailable && result.episode.pages.length > 0) {
+        return {
+          episode: result.episode,
+          pageIndex: 0,
+        };
+      }
+    }
+    return { episode: null, pageIndex: 0 };
+  }, [initialSeasonSlug, initialEpisodeSlug, initialPageSlug]);
+
+  const [selectedSeasonId, setSelectedSeasonId] = useState<string>(initialSeasonSlug || "season-1");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedTopic, setSelectedTopic] = useState<string>("All");
 
-  const [viewerEpisode, setViewerEpisode] = useState<Episode | null>(null);
-  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [viewerEpisode, setViewerEpisode] = useState<Episode | null>(initialData.episode);
+  const [viewerPageIndex, setViewerPageIndex] = useState<number>(initialData.pageIndex);
+  const [isViewerOpen, setIsViewerOpen] = useState<boolean>(Boolean(initialData.episode));
 
   const selectedSeason = useMemo(() => {
     return seasonsData.find(season => season.id === selectedSeasonId) || seasonsData[0];
   }, [selectedSeasonId]);
+
+  useEffect(() => {
+    if (initialSeasonSlug) {
+      setSelectedSeasonId(initialSeasonSlug);
+    }
+    if (initialSeasonSlug && initialEpisodeSlug) {
+      if (initialPageSlug) {
+        const pageResult = getPageBySlug(initialSeasonSlug, initialEpisodeSlug, initialPageSlug);
+        if (pageResult && pageResult.episode.isAvailable && pageResult.episode.pages.length > 0) {
+          setViewerEpisode(pageResult.episode);
+          setViewerPageIndex(pageResult.pageIndex);
+          setIsViewerOpen(true);
+          return;
+        }
+      }
+      const result = getEpisodeBySlug(initialSeasonSlug, initialEpisodeSlug);
+      if (result && result.episode.isAvailable && result.episode.pages.length > 0) {
+        setViewerEpisode(result.episode);
+        setViewerPageIndex(0);
+        setIsViewerOpen(true);
+      }
+    }
+  }, [initialSeasonSlug, initialEpisodeSlug, initialPageSlug]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const pathname = window.location.pathname;
+      const segments = pathname.split("/").filter(Boolean); // ['notes', 'season-1', 'episode-1-...', 'page-1-...']
+      if (segments[0] === "notes") {
+        const seasonSlug = segments[1] || "season-1";
+        const episodeSlug = segments[2];
+        const pageSlug = segments[3];
+
+        setSelectedSeasonId(seasonSlug);
+
+        if (episodeSlug && pageSlug) {
+          const pageResult = getPageBySlug(seasonSlug, episodeSlug, pageSlug);
+          if (pageResult && pageResult.episode.isAvailable && pageResult.episode.pages.length > 0) {
+            setViewerEpisode(pageResult.episode);
+            setViewerPageIndex(pageResult.pageIndex);
+            setIsViewerOpen(true);
+            return;
+          }
+        } else if (episodeSlug) {
+          const result = getEpisodeBySlug(seasonSlug, episodeSlug);
+          if (result && result.episode.isAvailable && result.episode.pages.length > 0) {
+            setViewerEpisode(result.episode);
+            setViewerPageIndex(0);
+            setIsViewerOpen(true);
+            return;
+          }
+        }
+
+        setIsViewerOpen(false);
+        setViewerEpisode(null);
+        setViewerPageIndex(0);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   const seasonTopics = useMemo(() => {
     const topicsSet = new Set<string>();
@@ -44,16 +144,70 @@ const Notes = () => {
     });
   }, [selectedSeason, searchQuery, selectedTopic]);
 
-  const handleOpenEpisode = (episode: Episode) => {
-    if (!episode.isAvailable || episode.pages.length === 0) return;
-    setViewerEpisode(episode);
-    setIsViewerOpen(true);
-  };
+  const handleSelectSeason = useCallback((seasonId: string) => {
+    setSelectedSeasonId(seasonId);
+    setSelectedTopic("All");
+    const url = getSeasonUrl(seasonId);
+    window.history.pushState({ seasonId }, "", url);
+  }, []);
 
-  const handleCloseViewer = () => {
+  const handleOpenEpisode = useCallback(
+    (episode: Episode) => {
+      if (!episode.isAvailable || episode.pages.length === 0) return;
+      const targetPage = episode.pages[0];
+      setViewerEpisode(episode);
+      setViewerPageIndex(0);
+      setIsViewerOpen(true);
+      const url = targetPage
+        ? getPageUrl(selectedSeasonId, episode, targetPage)
+        : getEpisodeUrl(selectedSeasonId, episode);
+      window.history.pushState(
+        { seasonId: selectedSeasonId, episodeId: episode.id, pageNumber: 1 },
+        "",
+        url
+      );
+    },
+    [selectedSeasonId]
+  );
+
+  const handlePageChange = useCallback(
+    (pageIndex: number, page: NotePage) => {
+      if (!viewerEpisode) return;
+      setViewerPageIndex(pageIndex);
+      const url = getPageUrl(selectedSeasonId, viewerEpisode, page);
+      window.history.replaceState(
+        { seasonId: selectedSeasonId, episodeId: viewerEpisode.id, pageNumber: page.pageNumber },
+        "",
+        url
+      );
+    },
+    [selectedSeasonId, viewerEpisode]
+  );
+
+  const handleCloseViewer = useCallback(() => {
     setIsViewerOpen(false);
     setViewerEpisode(null);
-  };
+    setViewerPageIndex(0);
+    const url = getSeasonUrl(selectedSeasonId);
+    window.history.pushState({ seasonId: selectedSeasonId }, "", url);
+  }, [selectedSeasonId]);
+
+  const handleSelectEpisodeInViewer = useCallback(
+    (episode: Episode) => {
+      setViewerEpisode(episode);
+      setViewerPageIndex(0);
+      const targetPage = episode.pages[0];
+      const url = targetPage
+        ? getPageUrl(selectedSeasonId, episode, targetPage)
+        : getEpisodeUrl(selectedSeasonId, episode);
+      window.history.replaceState(
+        { seasonId: selectedSeasonId, episodeId: episode.id, pageNumber: 1 },
+        "",
+        url
+      );
+    },
+    [selectedSeasonId]
+  );
 
   return (
     <div className="relative min-h-screen bg-body py-10 sm:py-16">
@@ -69,10 +223,7 @@ const Notes = () => {
           <SeasonTabs
             seasons={seasonsData}
             selectedSeasonId={selectedSeasonId}
-            onSelectSeason={seasonId => {
-              setSelectedSeasonId(seasonId);
-              setSelectedTopic("All");
-            }}
+            onSelectSeason={handleSelectSeason}
           />
 
           <NotesFilter
@@ -94,6 +245,7 @@ const Notes = () => {
                   key={episode.id}
                   episode={episode}
                   seasonNumber={selectedSeason.seasonNumber}
+                  seasonSlug={selectedSeasonId}
                   onOpenEpisode={handleOpenEpisode}
                   index={idx}
                 />
@@ -127,9 +279,11 @@ const Notes = () => {
       <NotesViewerModal
         episode={viewerEpisode}
         season={selectedSeason}
+        initialPageIndex={viewerPageIndex}
         isOpen={isViewerOpen}
         onClose={handleCloseViewer}
-        onSelectEpisode={newEpisode => setViewerEpisode(newEpisode)}
+        onSelectEpisode={handleSelectEpisodeInViewer}
+        onPageChange={handlePageChange}
       />
     </div>
   );

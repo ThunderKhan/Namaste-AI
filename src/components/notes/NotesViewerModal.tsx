@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { Episode, Season } from "@/data/notesData";
+import { Episode, Season, NotePage } from "@/data/notesData";
 import {
   FiX,
   FiChevronLeft,
@@ -20,19 +20,23 @@ import {
 interface NotesViewerModalProps {
   episode: Episode | null;
   season: Season | null;
+  initialPageIndex?: number;
   isOpen: boolean;
   onClose: () => void;
   onSelectEpisode: (episode: Episode) => void;
+  onPageChange?: (pageIndex: number, page: NotePage) => void;
 }
 
 export const NotesViewerModal = ({
   episode,
   season,
+  initialPageIndex = 0,
   isOpen,
   onClose,
   onSelectEpisode,
+  onPageChange,
 }: NotesViewerModalProps) => {
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [currentPageIndex, setCurrentPageIndex] = useState(initialPageIndex);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [mounted, setMounted] = useState(false);
 
@@ -41,9 +45,9 @@ export const NotesViewerModal = ({
   }, []);
 
   useEffect(() => {
-    setCurrentPageIndex(0);
+    setCurrentPageIndex(initialPageIndex);
     setZoomLevel(1);
-  }, [episode]);
+  }, [episode, initialPageIndex]);
 
   useEffect(() => {
     if (isOpen) {
@@ -60,12 +64,33 @@ export const NotesViewerModal = ({
   const currentPage = episode?.pages[currentPageIndex];
 
   const handlePrevPage = useCallback(() => {
-    setCurrentPageIndex(prev => (prev > 0 ? prev - 1 : prev));
-  }, []);
+    if (!episode || currentPageIndex <= 0) return;
+    const nextIndex = currentPageIndex - 1;
+    setCurrentPageIndex(nextIndex);
+    if (episode.pages[nextIndex]) {
+      onPageChange?.(nextIndex, episode.pages[nextIndex]);
+    }
+  }, [episode, currentPageIndex, onPageChange]);
 
   const handleNextPage = useCallback(() => {
-    setCurrentPageIndex(prev => (prev < totalPages - 1 ? prev + 1 : prev));
-  }, [totalPages]);
+    if (!episode || currentPageIndex >= totalPages - 1) return;
+    const nextIndex = currentPageIndex + 1;
+    setCurrentPageIndex(nextIndex);
+    if (episode.pages[nextIndex]) {
+      onPageChange?.(nextIndex, episode.pages[nextIndex]);
+    }
+  }, [episode, currentPageIndex, totalPages, onPageChange]);
+
+  const handleSelectPage = useCallback(
+    (idx: number) => {
+      if (!episode || idx === currentPageIndex) return;
+      setCurrentPageIndex(idx);
+      if (episode.pages[idx]) {
+        onPageChange?.(idx, episode.pages[idx]);
+      }
+    },
+    [episode, currentPageIndex, onPageChange],
+  );
 
   useEffect(() => {
     if (!isOpen) return;
@@ -288,7 +313,7 @@ export const NotesViewerModal = ({
                 <button
                   key={page.pageNumber}
                   type="button"
-                  onClick={() => setCurrentPageIndex(idx)}
+                  onClick={() => handleSelectPage(idx)}
                   className={`
                     relative h-12 w-16 shrink-0 overflow-hidden rounded-xl border transition-all duration-200 cursor-pointer
                     ${
