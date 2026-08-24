@@ -1,0 +1,149 @@
+export interface NotePage {
+  pageNumber: number;
+  title: string;
+  imageUrl: string;
+  caption?: string;
+}
+
+export interface Episode {
+  id: string;
+  episodeNumber: number;
+  title: string;
+  description: string;
+  topics: string[];
+  pages: NotePage[];
+  isAvailable: boolean;
+}
+
+export interface Season {
+  id: string;
+  seasonNumber: number;
+  title: string;
+  subtitle: string;
+  description: string;
+  tag: string;
+  status: "available" | "in-progress" | "coming-soon";
+  episodes: Episode[];
+}
+
+export const seasonsData: Season[] = [
+  {
+    id: "season-1",
+    seasonNumber: 1,
+    title: "Inside the Mind of AI",
+    subtitle: "Foundations of Artificial Intelligence & LLMs",
+    description:
+      "Understand how modern AI models think, the mathematics behind neural networks, transformers architecture, self-attention, and prompt engineering fundamentals.",
+    tag: "Core Foundations",
+    status: "available",
+    episodes: [
+      {
+        id: "s1-ep1",
+        episodeNumber: 1,
+        title: "Welcome to Namaste AI",
+        description:
+          "Begin your Namaste AI journey and explore what AI is, how it works, and what you'll learn throughout the course.",
+        topics: ["AI Overview", "Course Roadmap", "AI Stack"],
+        isAvailable: true,
+        pages: [
+          {
+            pageNumber: 1,
+            title: "Roadmap about Namaste AI Course",
+            imageUrl: "/images/notes/s1-e1/s1-e1-welcome-to-namaste-ai.webp",
+            caption:
+              "Course roadmap, prerequisites, learning approach, assignments, community, and practical project-building journey.",
+          },
+        ],
+      },
+      {
+        id: "s1-ep2",
+        episodeNumber: 2,
+        title: "The Evolution of AI",
+        description:
+          "Explore the evolution of Artificial Intelligence and the breakthroughs that shaped modern AI systems.",
+        topics: [
+          "History of AI",
+          "Symbolic AI",
+          "Rule Based AI",
+          "Machine Learning",
+          "Deep Learning",
+        ],
+        isAvailable: true,
+        pages: [
+          {
+            pageNumber: 1,
+            title: "What Is Artificial Intelligence?",
+            imageUrl: "/images/notes/s1-e2/s1-e2.1-what-is-artificial-intelligence.webp",
+            caption:
+              "Handwritten introduction to AI, real-world examples, its definition, and how machines learn to recognize patterns like humans.",
+          },
+          {
+            pageNumber: 2,
+            title: "The Evolution of Artificial Intelligence",
+            imageUrl: "/images/notes/s1-e2/s1-e2.2-can-machines-think.webp",
+            caption:
+              "Handwritten journey through AI history, from the Turing Test and birth of AI to the AI Winter, Synthetic Intelligence, and Deep Blue defeating Kasparov.",
+          },
+          {
+            pageNumber: 3,
+            title: "Rule-Based AI",
+            imageUrl: "/images/notes/s1-e2/s1-e2.3-rule-based-ai.webp",
+            caption:
+              "Handwritten explanation of rule-based AI, where humans define if/else rules and machines follow them to make decisions.",
+          },
+          {
+            pageNumber: 4,
+            title: "Machine Learning",
+            imageUrl: "/images/notes/s1-e2/s1-e2.4-machine-learning.webp",
+            caption:
+              "Handwritten explanation of machine learning, where humans provide examples and training data so machines can learn patterns and make predictions.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "season-2",
+    seasonNumber: 2,
+    title: "AI Native Software Engineer",
+    subtitle: "Becoming an AI-Native Developer",
+    description:
+      "Learn how AI is transforming software development and discover the tools, workflows, and practices that help developers become AI-native engineers.",
+    tag: "AI-Native Development",
+    status: "coming-soon",
+    episodes: [],
+  },
+  {
+    id: "season-3",
+    seasonNumber: 3,
+    title: "Building AI Applications",
+    subtitle: "From LLM APIs to AI-Powered Applications",
+    description:
+      "Learn how to use LLM APIs and modern AI capabilities to build practical AI-powered applications, integrate models into software, and turn AI concepts into real products.",
+    tag: "AI Application Development",
+    status: "coming-soon",
+    episodes: [],
+  },
+  {
+    id: "season-4",
+    seasonNumber: 4,
+    title: "Giving AI Knowledge (RAG)",
+    subtitle: "Connecting AI with Your Own Knowledge",
+    description:
+      "Understand how Retrieval-Augmented Generation gives AI access to external and private knowledge, and learn how to build applications that can retrieve and use relevant information.",
+    tag: "Retrieval-Augmented Generation",
+    status: "coming-soon",
+    episodes: [],
+  },
+  {
+    id: "season-5",
+    seasonNumber: 5,
+    title: "From Chatbots To Agents",
+    subtitle: "Building Intelligent AI Agents",
+    description:
+      "Explore the evolution from simple chatbots to intelligent AI agents that can reason, use tools, access context, perform tasks, and work together to solve complex problems.",
+    tag: "AI Agents",
+    status: "coming-soon",
+    episodes: [],
+  },
+];

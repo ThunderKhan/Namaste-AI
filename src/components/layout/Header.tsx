@@ -5,7 +5,7 @@ import { RiMoonClearLine } from "react-icons/ri";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
-import iconImg from "@/app/icon.png";
+import iconImg from "@/app/icon.jpg";
 import { LuSun } from "react-icons/lu";
 import { motion } from "framer-motion";
 import Navbar from "./Navbar";
@@ -102,9 +102,9 @@ const Header = () => {
               title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
             >
               {theme === "dark" ? (
-                <LuSun className="size-4 sm:size-[18px]" />
+                <LuSun className="size-4 sm:size-4.5" />
               ) : (
-                <RiMoonClearLine className="size-4 sm:size-[18px]" />
+                <RiMoonClearLine className="size-4 sm:size-4.5" />
               )}
             </motion.button>
 
@@ -134,7 +134,7 @@ const Header = () => {
             >
               <FaGithub
                 className="
-                size-3.5 sm:size-[17px]
+                size-3.5 sm:size-4.25
                 transition-transform
                 duration-300
                 group-hover:rotate-360
