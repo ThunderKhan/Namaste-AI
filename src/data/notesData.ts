@@ -1,6 +1,7 @@
 export interface NotePage {
   pageNumber: number;
   title: string;
+  slug: string;
   imageUrl: string;
   caption?: string;
 }
@@ -9,6 +10,7 @@ export interface Episode {
   id: string;
   episodeNumber: number;
   title: string;
+  slug: string;
   description: string;
   topics: string[];
   pages: NotePage[];
@@ -26,6 +28,75 @@ export interface Season {
   episodes: Episode[];
 }
 
+// --- Slug & Lookup Helpers ---
+
+export function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+}
+
+export function buildEpisodeSlug(episode: Episode): string {
+  return `episode-${episode.episodeNumber}-${episode.slug}`;
+}
+
+export function buildPageSlug(page: NotePage): string {
+  return page.slug;
+}
+
+export function getSeasonBySlug(seasonSlug: string): Season | undefined {
+  return seasonsData.find(s => s.id === seasonSlug);
+}
+
+export function getEpisodeBySlug(
+  seasonSlug: string,
+  episodeSlug: string,
+): { season: Season; episode: Episode } | undefined {
+  const season = getSeasonBySlug(seasonSlug);
+  if (!season) return undefined;
+
+  const episode = season.episodes.find(ep => buildEpisodeSlug(ep) === episodeSlug);
+  if (!episode) return undefined;
+
+  return { season, episode };
+}
+
+export function getPageBySlug(
+  seasonSlug: string,
+  episodeSlug: string,
+  pageSlug: string,
+): { season: Season; episode: Episode; page: NotePage; pageIndex: number } | undefined {
+  const result = getEpisodeBySlug(seasonSlug, episodeSlug);
+  if (!result) return undefined;
+
+  const { season, episode } = result;
+  const pageIndex = episode.pages.findIndex(p => buildPageSlug(p) === pageSlug);
+  if (pageIndex === -1) return undefined;
+
+  return { season, episode, page: episode.pages[pageIndex], pageIndex };
+}
+
+export function getPageUrl(seasonId: string, episode: Episode, page: NotePage): string {
+  return `/notes/${seasonId}/${buildEpisodeSlug(episode)}/${buildPageSlug(page)}`;
+}
+
+export function getEpisodeUrl(seasonId: string, episode: Episode, page?: NotePage): string {
+  const targetPage = page || episode.pages[0];
+  if (targetPage) {
+    return getPageUrl(seasonId, episode, targetPage);
+  }
+  return `/notes/${seasonId}/${buildEpisodeSlug(episode)}`;
+}
+
+export function getSeasonUrl(seasonId: string): string {
+  return `/notes/${seasonId}`;
+}
+
+// --- Data ---
+
 export const seasonsData: Season[] = [
   {
     id: "season-1",
@@ -41,6 +112,7 @@ export const seasonsData: Season[] = [
         id: "s1-ep1",
         episodeNumber: 1,
         title: "Welcome to Namaste AI",
+        slug: "welcome-to-namaste-ai",
         description:
           "Begin your Namaste AI journey and explore what AI is, how it works, and what you'll learn throughout the course.",
         topics: ["AI Overview", "Course Roadmap", "AI Stack"],
@@ -49,6 +121,7 @@ export const seasonsData: Season[] = [
           {
             pageNumber: 1,
             title: "Roadmap about Namaste AI Course",
+            slug: "roadmap-about-namaste-ai-course",
             imageUrl: "/images/notes/s1-e1/s1-e1-welcome-to-namaste-ai.webp",
             caption:
               "Course roadmap, prerequisites, learning approach, assignments, community, and practical project-building journey.",
@@ -59,6 +132,7 @@ export const seasonsData: Season[] = [
         id: "s1-ep2",
         episodeNumber: 2,
         title: "The Evolution of AI",
+        slug: "the-evolution-of-ai",
         description:
           "Explore the evolution of Artificial Intelligence and the breakthroughs that shaped modern AI systems.",
         topics: [
@@ -73,6 +147,7 @@ export const seasonsData: Season[] = [
           {
             pageNumber: 1,
             title: "What Is Artificial Intelligence?",
+            slug: "what-is-artificial-intelligence",
             imageUrl: "/images/notes/s1-e2/s1-e2.1-what-is-artificial-intelligence.webp",
             caption:
               "Handwritten introduction to AI, real-world examples, its definition, and how machines learn to recognize patterns like humans.",
@@ -80,6 +155,7 @@ export const seasonsData: Season[] = [
           {
             pageNumber: 2,
             title: "The Evolution of Artificial Intelligence",
+            slug: "the-evolution-of-artificial-intelligence",
             imageUrl: "/images/notes/s1-e2/s1-e2.2-can-machines-think.webp",
             caption:
               "Handwritten journey through AI history, from the Turing Test and birth of AI to the AI Winter, Synthetic Intelligence, and Deep Blue defeating Kasparov.",
@@ -87,6 +163,7 @@ export const seasonsData: Season[] = [
           {
             pageNumber: 3,
             title: "Rule-Based AI",
+            slug: "rule-based-ai",
             imageUrl: "/images/notes/s1-e2/s1-e2.3-rule-based-ai.webp",
             caption:
               "Handwritten explanation of rule-based AI, where humans define if/else rules and machines follow them to make decisions.",
@@ -94,6 +171,7 @@ export const seasonsData: Season[] = [
           {
             pageNumber: 4,
             title: "Machine Learning",
+            slug: "machine-learning",
             imageUrl: "/images/notes/s1-e2/s1-e2.4-machine-learning.webp",
             caption:
               "Handwritten explanation of machine learning, where humans provide examples and training data so machines can learn patterns and make predictions.",
@@ -147,3 +225,4 @@ export const seasonsData: Season[] = [
     episodes: [],
   },
 ];
+

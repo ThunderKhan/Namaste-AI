@@ -37,11 +37,15 @@ This repository is my **learning in public** journey, where I share my **handwri
 - 🗺️ Course roadmap
 - 🚀 What we'll build and explore
 
-✍️ **Handwritten Notes:** [View Notes 🚀](https://namaste-ai-dev.vercel.app/notes)
+✍️ **Handwritten Notes:**
+
+- 📄 **Roadmap about Namaste AI Course** [View Episode Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-1-welcome-to-namaste-ai/roadmap-about-namaste-ai-course)
+
+---
 
 ### 🕰️ Episode 02 — The Evolution of AI
 
-EExplore the evolution of Artificial Intelligence and the breakthroughs that shaped modern AI systems.
+Explore the evolution of Artificial Intelligence and the breakthroughs that shaped modern AI systems.
 
 **What you'll learn**
 
@@ -51,7 +55,12 @@ EExplore the evolution of Artificial Intelligence and the breakthroughs that sha
 - 🤖 Machine Learning
 - 🔥 The evolution toward modern AI
 
-✍️ **Handwritten Notes:** [View Notes 🚀](https://namaste-ai-dev.vercel.app/notes)
+✍️ **Handwritten Notes:**
+
+- 📄 **What Is Artificial Intelligence?** [View Episode Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/what-is-artificial-intelligence)
+- 📄 **The Evolution of Artificial Intelligence** [View Episode Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/the-evolution-of-artificial-intelligence)
+- 📄 **Rule-Based AI** [View Episode Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/rule-based-ai)
+- 📄 **Machine Learning** [View Episode Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/machine-learning)
 
 ## 🌱 Structure of this Project
 
@@ -75,9 +84,14 @@ Namaste-AI/
 │   │   ├── 🎨 globals.css              # Global styles, theme tokens, design system
 │   │   ├── 🖼️ icon.jpg                 # Favicon / app icon
 │   │   ├── 📄 layout.tsx               # Root layout (metadata, fonts, providers)
-│   │   ├── 📄 page.tsx                 # Home page ( / )
 │   │   └── 📁 notes/
-│   │       └── 📄 page.tsx             # Notes page ( /notes )
+│   │       ├── 📄 page.tsx             # Redirects to default season (/notes)
+│   │       └── 📁 [seasonSlug]/        # Season routes (/notes/season-1)
+│   │           ├── 📄 page.tsx         # Season overview page
+│   │           └── 📁 [episodeSlug]/   # Episode routes (/notes/season-1/episode-1-...)
+│   │               ├── 📄 page.tsx     # Episode viewer page
+│   │               └── 📁 [pageSlug]/  # Direct page routes (/notes/.../rule-based-ai)
+│   │                   └── 📄 page.tsx # Individual note page with custom SEO
 │   │
 │   ├── 📁 components/                  # Reusable React components
 │   │   ├── 📁 home/

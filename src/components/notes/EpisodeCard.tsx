@@ -1,26 +1,36 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Episode } from "@/data/notesData";
+import { Episode, getEpisodeUrl } from "@/data/notesData";
 import { FiBookOpen, FiClock, FiEye, FiLock, FiArrowRight } from "react-icons/fi";
 import { HiOutlineSparkles } from "react-icons/hi2";
 
 interface EpisodeCardProps {
   episode: Episode;
   seasonNumber: number;
+  seasonSlug: string;
   onOpenEpisode: (episode: Episode) => void;
   index: number;
 }
 
-export const EpisodeCard = ({ episode, seasonNumber, onOpenEpisode, index }: EpisodeCardProps) => {
+export const EpisodeCard = ({
+  episode,
+  seasonNumber,
+  seasonSlug,
+  onOpenEpisode,
+  index,
+}: EpisodeCardProps) => {
   const isAvailable = episode.isAvailable && episode.pages.length > 0;
   const thumbnail =
     episode.pages[0]?.imageUrl || "/images/notes/s1-e1/s1-e1-welcome-to-namaste-ai.webp";
   const readDuration = episode.pages.length <= 1 ? 4 : 4 + (episode.pages.length - 1) * 3;
+  const episodeUrl = getEpisodeUrl(seasonSlug, episode);
 
-  const handleCardClick = () => {
+  const handleCardClick = (e: React.MouseEvent) => {
     if (isAvailable) {
+      e.preventDefault();
       onOpenEpisode(episode);
     }
   };
@@ -32,34 +42,17 @@ export const EpisodeCard = ({ episode, seasonNumber, onOpenEpisode, index }: Epi
     }
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={isAvailable ? { y: -6 } : undefined}
-      transition={{
-        delay: index * 0.08,
-        duration: 0.45,
-        ease: [0.25, 0.46, 0.45, 0.94] as const,
-      }}
-      onClick={handleCardClick}
-      onKeyDown={handleKeyDown}
-      role={isAvailable ? "button" : undefined}
-      tabIndex={isAvailable ? 0 : undefined}
-      aria-label={
-        isAvailable
-          ? `View notes for Season ${seasonNumber} Episode ${episode.episodeNumber}: ${episode.title}`
-          : `Season ${seasonNumber} Episode ${episode.episodeNumber} Coming Soon`
-      }
-      className={`
-        group relative flex flex-col overflow-hidden rounded-3xl border p-3.5 sm:p-4 transition-all duration-300
-        ${
-          isAvailable
-            ? "cursor-pointer border-border bg-surface/75 backdrop-blur-md hover:border-primary/60 hover:bg-surface hover:shadow-2xl hover:shadow-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            : "cursor-default border-border/60 bg-surface/40 opacity-75 backdrop-blur-xs"
-        }
-      `}
-    >
+  const cardClasses = `
+    group relative flex flex-col overflow-hidden rounded-3xl border p-3.5 sm:p-4 transition-all duration-300
+    ${
+      isAvailable
+        ? "cursor-pointer border-border bg-surface/75 backdrop-blur-md hover:border-primary/60 hover:bg-surface hover:shadow-2xl hover:shadow-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        : "cursor-default border-border/60 bg-surface/40 opacity-75 backdrop-blur-xs"
+    }
+  `;
+
+  const cardContent = (
+    <>
       {isAvailable && (
         <div className="pointer-events-none absolute -inset-px rounded-3xl bg-linear-to-b from-primary/15 via-transparent to-accent/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       )}
@@ -163,6 +156,39 @@ export const EpisodeCard = ({ episode, seasonNumber, onOpenEpisode, index }: Epi
           )}
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={isAvailable ? { y: -6 } : undefined}
+      transition={{
+        delay: index * 0.08,
+        duration: 0.45,
+        ease: [0.25, 0.46, 0.45, 0.94] as const,
+      }}
+    >
+      {isAvailable ? (
+        <Link
+          href={episodeUrl}
+          onClick={handleCardClick}
+          onKeyDown={handleKeyDown}
+          aria-label={`View notes for Season ${seasonNumber} Episode ${episode.episodeNumber}: ${episode.title}`}
+          className={cardClasses}
+        >
+          {cardContent}
+        </Link>
+      ) : (
+        <div
+          aria-label={`Season ${seasonNumber} Episode ${episode.episodeNumber} Coming Soon`}
+          className={cardClasses}
+        >
+          {cardContent}
+        </div>
+      )}
     </motion.div>
   );
 };
+
