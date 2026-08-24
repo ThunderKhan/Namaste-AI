@@ -1,36 +1,179 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Namaste AI 🚀
 
-## Getting Started
+**Namaste AI** is a hands-on learning journey to understand modern **Artificial Intelligence** and build real-world AI applications.
 
-First, run the development server:
+Created while learning from the **[Namaste AI course 🔥](https://namastedev.com/learn/namaste-ai?_aff=946684804112)** by **Akshay Saini**, Founder of **[NamasteDev](https://namastedev.com/?_aff=946684804112)**.
+
+This repository is my **learning in public** journey, where I share my **handwritten notes, learnings, experiments, and projects** as I explore AI. ✍️🤖
+
+> 💡 **The goal is not just to use AI tools.**
+>
+> **Understand how AI works → Build with AI → Learn by doing → Share the journey.** 🚀
+
+### 🌐 Live Demo
+
+🔗 **[namaste-ai-dev.vercel.app](https://namaste-ai-dev.vercel.app)**
+
+✍️ **Take Notes** • 💡 **Learn concepts** • 🛠️ **Build Projects** • 🚀 **Learn in Public**
+
+## 📚 Course Roadmap
+
+> 🚀 **Learn AI step by step — from understanding the foundations to building real-world AI applications.**
+>
+> ✍️ Along the way, I'm also creating and sharing my **handwritten notes** so my learning stays public and useful to others.
+
+## 🧠 Season 1 — Inside the Mind of AI
+
+> **Understand how AI evolved, how modern AI systems work, and what happens inside an LLM.**
+
+### 🎬 Episode 01 — Welcome to Namaste AI
+
+🌱 Begin your Namaste AI journey and explore what AI is, how it works, and what you'll learn throughout the course.
+
+**What you'll learn**
+
+- 🤖 What is AI?
+- 🧠 How AI systems work
+- 🗺️ Course roadmap
+- 🚀 What we'll build and explore
+
+✍️ **Handwritten Notes:** [View Notes 🚀](https://namaste-ai-dev.vercel.app/notes)
+
+### 🕰️ Episode 02 — The Evolution of AI
+
+EExplore the evolution of Artificial Intelligence and the breakthroughs that shaped modern AI systems.
+
+**What you'll learn**
+
+- 🧠 How AI started
+- 📜 Important AI milestones
+- ♟️ Rule-based AI
+- 🤖 Machine Learning
+- 🔥 The evolution toward modern AI
+
+✍️ **Handwritten Notes:** [View Notes 🚀](https://namaste-ai-dev.vercel.app/notes)
+
+## 🌱 Structure of this Project
+
+```
+Namaste-AI/
+│
+├── 📁 public/                          # Static assets served at root
+│   └── 📁 images/
+│       ├── 🖼️ hero-ai.webp             # Hero section background image
+│       └── 📁 notes/                   # Handwritten note images (per episode)
+│           ├── 📁 s1-e1/               # Season 1 · Episode 01 notes
+│           │   └── s1-e1-welcome-to-namaste-ai.webp
+│           └── 📁 s1-e2/               # Season 1 · Episode 02 notes
+│               ├── s1-e2.1-what-is-artificial-intelligence.webp
+│               ├── s1-e2.2-can-machines-think.webp
+│               ├── s1-e2.3-rule-based-ai.webp
+│               └── s1-e2.4-machine-learning.webp
+│
+├── 📁 src/                             # Application source code
+│   ├── 📁 app/                         # Next.js App Router (pages & layouts)
+│   │   ├── 🎨 globals.css              # Global styles, theme tokens, design system
+│   │   ├── 🖼️ icon.jpg                 # Favicon / app icon
+│   │   ├── 📄 layout.tsx               # Root layout (metadata, fonts, providers)
+│   │   ├── 📄 page.tsx                 # Home page ( / )
+│   │   └── 📁 notes/
+│   │       └── 📄 page.tsx             # Notes page ( /notes )
+│   │
+│   ├── 📁 components/                  # Reusable React components
+│   │   ├── 📁 home/
+│   │   │   └── 🧩 Hero.tsx             # Landing page hero section
+│   │   ├── 📁 layout/
+│   │   │   ├── 🧩 Header.tsx           # Top navigation bar
+│   │   │   ├── 🧩 Navbar.tsx           # Desktop navigation links
+│   │   │   ├── 🧩 Sidebar.tsx          # Mobile slide-out menu
+│   │   │   └── 🧩 Footer.tsx           # Site footer with social links
+│   │   └── 📁 notes/
+│   │       ├── 🧩 Notes.tsx            # Main notes page orchestrator
+│   │       ├── 🧩 NotesHero.tsx        # Notes page hero / header
+│   │       ├── 🧩 SeasonTabs.tsx       # Horizontal scrollable season tabs
+│   │       ├── 🧩 SeasonBanner.tsx     # Active season info banner
+│   │       ├── 🧩 NotesFilter.tsx      # Search bar + topic filter chips
+│   │       ├── 🧩 EpisodeCard.tsx      # Episode card with thumbnail & metadata
+│   │       └── 🧩 NotesViewerModal.tsx # Fullscreen notes viewer (zoom, nav, download)
+│   │
+│   ├── 📁 context/
+│   │   └── 🔧 ThemeContext.tsx         # Light / Dark theme provider
+│   │
+│   └── 📁 data/
+│       └── 📋 notesData.ts            # All seasons, episodes & note pages data
+│
+├── ⚙️ next.config.ts                   # Next.js configuration
+├── ⚙️ tsconfig.json                    # TypeScript configuration
+├── ⚙️ eslint.config.mjs                # ESLint configuration
+├── ⚙️ postcss.config.mjs               # PostCSS / Tailwind CSS config
+├── ⚙️ .prettierrc                      # Prettier code formatter config
+└── 📦 package.json                     # Dependencies & scripts
+
+```
+
+> 💡 **Note images** are organized by season and episode (`s1-e1/`, `s1-e2/`, ...) so adding new episodes is as simple as dropping images into the right folder and updating `notesData.ts`.
+
+## 🎻 Prerequisites
+
+Before running the application, make sure you have the following installed:
+
+- **Node.js**: `v18.x` or later.
+- **Package Manager**: `npm` (v9+), `yarn`, `pnpm`, or `bun`.
+
+## 🔥 Clone this Repository
+
+Follow these steps to set up and run RepoSpark locally:
+
+### 1. Clone the Repo
+
+```bash
+git clone https://github.com/chetannada/Namaste-AI.git
+```
+
+### 2. Go to the project directory
+
+```bash
+cd Namaste-AI
+```
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to start analyzing repositories!
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✏️ Contributing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-## Learn More
+To contribute:
 
-To learn more about Next.js, take a look at the following resources:
+1. Fork the Project.
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`). Ensure pre-commit hooks (Husky, Prettier, ESLint) pass successfully.
+4. Push to the Branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Please follow our coding standards:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Always use TypeScript (avoid `any`).
+- Prefer Server Components; use Client Components only when necessary.
+- Keep components modular, reusable, and avoid UI duplication.
 
-## Deploy on Vercel
+## 📄 License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+MIT License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🤝 Let's Connect
+
+[![linkedin](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/chetannada/)
+[![twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/chetannada)
+[![discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discordapp.com/users/916005177838956555)
