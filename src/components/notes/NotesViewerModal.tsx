@@ -168,7 +168,7 @@ export const NotesViewerModal = ({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex h-7 w-7 sm:h-9 sm:w-9 cursor-pointer items-center justify-center rounded-lg sm:rounded-xl border border-border bg-surface/70 text-text-muted hover:bg-hover hover:text-primary transition-colors"
-                  title="Open Original Image in New Tab"
+                  title="Open Notes in New Tab"
                 >
                   <FiMaximize2 className="size-3.5 sm:size-4" />
                 </a>
@@ -179,7 +179,7 @@ export const NotesViewerModal = ({
                   href={currentPage.imageUrl}
                   download={`Namaste-AI-S${season?.seasonNumber}-EP${episode.episodeNumber}-Page${currentPageIndex + 1}.webp`}
                   className="inline-flex h-7 w-7 sm:h-9 sm:w-9 cursor-pointer items-center justify-center rounded-lg sm:rounded-xl border border-border bg-surface/70 text-text-muted hover:bg-hover hover:text-primary transition-colors"
-                  title="Download Note Page"
+                  title="Download Notes"
                 >
                   <FiDownload className="size-3.5 sm:size-4" />
                 </a>
@@ -189,8 +189,8 @@ export const NotesViewerModal = ({
                 type="button"
                 onClick={onClose}
                 className="inline-flex h-8 w-8 sm:h-9 sm:w-9 cursor-pointer items-center justify-center rounded-xl border border-highlight/40 bg-highlight/10 text-highlight hover:bg-highlight hover:text-white hover:scale-110 hover:shadow-lg hover:shadow-highlight/25 backdrop-blur-md transition-all duration-200"
-                aria-label="Close notes viewer"
-                title="Close notes viewer"
+                aria-label="Close Notes Viewer"
+                title="Close Notes Viewer"
               >
                 <FiX className="size-4 sm:size-4.5" />
               </button>
