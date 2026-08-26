@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
@@ -16,6 +16,19 @@ import {
   FiDownload,
   FiBookOpen,
 } from "react-icons/fi";
+
+const MIN_ZOOM = 0.75;
+const MAX_ZOOM = 2.5;
+const ZOOM_STEP = 0.25;
+const BASE_NOTE_HEIGHT = "72vh";
+
+function clampZoom(value: number) {
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, value));
+}
+
+function touchDistance(a: Touch, b: Touch) {
+  return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+}
 
 interface NotesViewerModalProps {
   episode: Episode | null;
@@ -39,6 +52,22 @@ export const NotesViewerModal = ({
   const [currentPageIndex, setCurrentPageIndex] = useState(initialPageIndex);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [mounted, setMounted] = useState(false);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [viewportEl, setViewportEl] = useState<HTMLDivElement | null>(null);
+  const zoomLevelRef = useRef(1);
+  const pinchRef = useRef<{ startDistance: number; startZoom: number } | null>(null);
+  const panRef = useRef<{
+    startX: number;
+    startY: number;
+    startScrollLeft: number;
+    startScrollTop: number;
+  } | null>(null);
+  const pendingScrollRef = useRef<{ left: number; top: number } | null>(null);
+
+  const setViewportNode = useCallback((node: HTMLDivElement | null) => {
+    viewportRef.current = node;
+    setViewportEl(node);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -46,6 +75,8 @@ export const NotesViewerModal = ({
 
   useEffect(() => {
     setCurrentPageIndex(initialPageIndex);
+    zoomLevelRef.current = 1;
+    pendingScrollRef.current = null;
     setZoomLevel(1);
   }, [episode, initialPageIndex]);
 
@@ -60,12 +91,168 @@ export const NotesViewerModal = ({
     };
   }, [isOpen]);
 
+  const applyZoom = useCallback((nextZoom: number, focalPoint?: { x: number; y: number }) => {
+    const prev = zoomLevelRef.current;
+    const next = clampZoom(nextZoom);
+    if (Math.abs(next - prev) < 0.001) return;
+
+    const viewport = viewportRef.current;
+    if (viewport && focalPoint && prev > 0) {
+      const ratio = next / prev;
+      pendingScrollRef.current = {
+        left: (viewport.scrollLeft + focalPoint.x) * ratio - focalPoint.x,
+        top: (viewport.scrollTop + focalPoint.y) * ratio - focalPoint.y,
+      };
+    }
+
+    zoomLevelRef.current = next;
+    setZoomLevel(next);
+  }, []);
+
+  useLayoutEffect(() => {
+    const pending = pendingScrollRef.current;
+    const viewport = viewportRef.current;
+    if (!pending || !viewport) return;
+    viewport.scrollLeft = pending.left;
+    viewport.scrollTop = pending.top;
+    pendingScrollRef.current = null;
+  }, [zoomLevel]);
+
+  useLayoutEffect(() => {
+    viewportRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [episode?.id, currentPageIndex]);
+
+  useEffect(() => {
+    if (!isOpen || !viewportEl) return;
+
+    const focalFromClient = (clientX: number, clientY: number) => {
+      const rect = viewportEl.getBoundingClientRect();
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      const factor = Math.exp(-event.deltaY * 0.01);
+      applyZoom(zoomLevelRef.current * factor, focalFromClient(event.clientX, event.clientY));
+    };
+
+    const handleTouchStart = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        panRef.current = null;
+        pinchRef.current = {
+          startDistance: touchDistance(event.touches[0], event.touches[1]),
+          startZoom: zoomLevelRef.current,
+        };
+        return;
+      }
+
+      pinchRef.current = null;
+      if (event.touches.length === 1) {
+        panRef.current = {
+          startX: event.touches[0].clientX,
+          startY: event.touches[0].clientY,
+          startScrollLeft: viewportEl.scrollLeft,
+          startScrollTop: viewportEl.scrollTop,
+        };
+      }
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (event.touches.length === 2 && pinchRef.current) {
+        event.preventDefault();
+        const { startDistance, startZoom } = pinchRef.current;
+        if (startDistance <= 0) return;
+        const currentDistance = touchDistance(event.touches[0], event.touches[1]);
+        const midX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+        const midY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+        applyZoom(startZoom * (currentDistance / startDistance), focalFromClient(midX, midY));
+        return;
+      }
+
+      if (event.touches.length === 1 && panRef.current) {
+        event.preventDefault();
+        const pan = panRef.current;
+        viewportEl.scrollLeft = pan.startScrollLeft - (event.touches[0].clientX - pan.startX);
+        viewportEl.scrollTop = pan.startScrollTop - (event.touches[0].clientY - pan.startY);
+      }
+    };
+
+    const handleTouchEnd = (event: TouchEvent) => {
+      if (event.touches.length < 2) {
+        pinchRef.current = null;
+      }
+      if (event.touches.length === 0) {
+        panRef.current = null;
+      }
+    };
+
+    viewportEl.addEventListener("wheel", handleWheel, { passive: false });
+    viewportEl.addEventListener("touchstart", handleTouchStart, { passive: true });
+    viewportEl.addEventListener("touchmove", handleTouchMove, { passive: false });
+    viewportEl.addEventListener("touchend", handleTouchEnd);
+    viewportEl.addEventListener("touchcancel", handleTouchEnd);
+
+    const handleMouseDown = (event: MouseEvent) => {
+      if (event.button !== 0 || zoomLevelRef.current <= 1) return;
+      event.preventDefault();
+      panRef.current = {
+        startX: event.clientX,
+        startY: event.clientY,
+        startScrollLeft: viewportEl.scrollLeft,
+        startScrollTop: viewportEl.scrollTop,
+      };
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        if (!panRef.current) return;
+        viewportEl.scrollLeft =
+          panRef.current.startScrollLeft - (moveEvent.clientX - panRef.current.startX);
+        viewportEl.scrollTop =
+          panRef.current.startScrollTop - (moveEvent.clientY - panRef.current.startY);
+      };
+
+      const handleMouseUp = () => {
+        panRef.current = null;
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
+      };
+
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    };
+
+    viewportEl.addEventListener("mousedown", handleMouseDown);
+
+    return () => {
+      viewportEl.removeEventListener("wheel", handleWheel);
+      viewportEl.removeEventListener("touchstart", handleTouchStart);
+      viewportEl.removeEventListener("touchmove", handleTouchMove);
+      viewportEl.removeEventListener("touchend", handleTouchEnd);
+      viewportEl.removeEventListener("touchcancel", handleTouchEnd);
+      viewportEl.removeEventListener("mousedown", handleMouseDown);
+    };
+  }, [isOpen, viewportEl, applyZoom]);
+
+  const zoomFromCenter = useCallback(
+    (nextZoom: number) => {
+      const viewport = viewportRef.current;
+      const focal = viewport
+        ? { x: viewport.clientWidth / 2, y: viewport.clientHeight / 2 }
+        : undefined;
+      applyZoom(nextZoom, focal);
+    },
+    [applyZoom]
+  );
+
   const totalPages = episode?.pages.length || 0;
   const currentPage = episode?.pages[currentPageIndex];
 
   const handlePrevPage = useCallback(() => {
     if (!episode || currentPageIndex <= 0) return;
     const nextIndex = currentPageIndex - 1;
+    zoomLevelRef.current = 1;
+    pendingScrollRef.current = null;
+    setZoomLevel(1);
     setCurrentPageIndex(nextIndex);
     if (episode.pages[nextIndex]) {
       onPageChange?.(nextIndex, episode.pages[nextIndex]);
@@ -75,6 +262,9 @@ export const NotesViewerModal = ({
   const handleNextPage = useCallback(() => {
     if (!episode || currentPageIndex >= totalPages - 1) return;
     const nextIndex = currentPageIndex + 1;
+    zoomLevelRef.current = 1;
+    pendingScrollRef.current = null;
+    setZoomLevel(1);
     setCurrentPageIndex(nextIndex);
     if (episode.pages[nextIndex]) {
       onPageChange?.(nextIndex, episode.pages[nextIndex]);
@@ -84,12 +274,15 @@ export const NotesViewerModal = ({
   const handleSelectPage = useCallback(
     (idx: number) => {
       if (!episode || idx === currentPageIndex) return;
+      zoomLevelRef.current = 1;
+      pendingScrollRef.current = null;
+      setZoomLevel(1);
       setCurrentPageIndex(idx);
       if (episode.pages[idx]) {
         onPageChange?.(idx, episode.pages[idx]);
       }
     },
-    [episode, currentPageIndex, onPageChange],
+    [episode, currentPageIndex, onPageChange]
   );
 
   useEffect(() => {
@@ -121,7 +314,7 @@ export const NotesViewerModal = ({
   return createPortal(
     <AnimatePresence>
       {isOpen && episode && (
-        <div className="fixed inset-0 z-200 flex flex-col items-center justify-between">
+        <div className="fixed inset-0 z-200 flex flex-col">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -160,10 +353,20 @@ export const NotesViewerModal = ({
                 <span>{totalPages}</span>
               </span>
 
+              <button
+                type="button"
+                onClick={() => zoomFromCenter(1)}
+                className="inline-flex h-8 min-w-8 items-center justify-center rounded-xl border border-border bg-surface/70 px-2 text-[11px] font-mono font-medium text-text-muted backdrop-blur-md hover:bg-hover hover:text-primary transition-colors md:hidden"
+                title="Reset Zoom"
+                aria-label={`Zoom ${Math.round(zoomLevel * 100)} percent. Tap to reset.`}
+              >
+                {Math.round(zoomLevel * 100)}%
+              </button>
+
               <div className="hidden items-center rounded-xl border border-border bg-surface/70 p-0.5 backdrop-blur-md md:flex">
                 <button
                   type="button"
-                  onClick={() => setZoomLevel(z => Math.max(0.75, z - 0.25))}
+                  onClick={() => zoomFromCenter(zoomLevelRef.current - ZOOM_STEP)}
                   className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-muted hover:bg-hover hover:text-primary transition-colors"
                   title="Zoom Out"
                 >
@@ -171,7 +374,7 @@ export const NotesViewerModal = ({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setZoomLevel(1)}
+                  onClick={() => zoomFromCenter(1)}
                   className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-muted hover:bg-hover hover:text-primary transition-colors"
                   title="Reset Zoom"
                 >
@@ -179,7 +382,7 @@ export const NotesViewerModal = ({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setZoomLevel(z => Math.min(2.5, z + 0.25))}
+                  onClick={() => zoomFromCenter(zoomLevelRef.current + ZOOM_STEP)}
                   className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-muted hover:bg-hover hover:text-primary transition-colors"
                   title="Zoom In"
                 >
@@ -222,14 +425,58 @@ export const NotesViewerModal = ({
             </div>
           </motion.header>
 
-          <div className="relative z-210 flex h-[calc(100dvh-130px)] sm:h-[calc(100dvh-160px)] w-full items-center justify-center p-3 sm:p-6 overflow-hidden">
+          <div className="relative z-210 min-h-0 w-full flex-1">
+            <div
+              ref={setViewportNode}
+              className={`absolute inset-0 overflow-auto overscroll-contain p-3 sm:p-6 touch-none ${
+                zoomLevel > 1 ? "cursor-grab active:cursor-grabbing" : ""
+              }`}
+            >
+              <div
+                className={`flex min-h-full w-max min-w-full justify-center ${
+                  zoomLevel > 1 ? "items-start" : "items-center"
+                }`}
+              >
+                <motion.div
+                  key={`${episode.id}-page-${currentPageIndex}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="relative w-max rounded-2xl border border-border bg-surface/40 shadow-2xl shadow-black/60 backdrop-blur-xs"
+                >
+                  {currentPage?.imageUrl ? (
+                    <Image
+                      src={currentPage.imageUrl}
+                      alt={currentPage.title || `Handwritten notes page ${currentPageIndex + 1}`}
+                      width={1200}
+                      height={900}
+                      priority
+                      draggable={false}
+                      className="w-auto rounded-2xl object-contain select-none"
+                      style={{
+                        height: `calc(${BASE_NOTE_HEIGHT} * ${zoomLevel})`,
+                        maxHeight: "none",
+                        maxWidth: "none",
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-96 w-96 flex-col items-center justify-center gap-3 text-text-muted">
+                      <FiBookOpen size={40} className="text-primary/60" />
+                      <p className="text-sm font-medium">No note page uploaded yet</p>
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+            </div>
+
             {totalPages > 1 && (
               <button
                 type="button"
                 onClick={handlePrevPage}
                 disabled={currentPageIndex === 0}
                 className={`
-                  absolute left-2 sm:left-6 z-220 flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-2xl border border-border bg-body/80 text-text-muted backdrop-blur-md transition-all duration-200
+                  absolute left-2 sm:left-6 top-1/2 z-220 flex h-11 w-11 sm:h-14 sm:w-14 -translate-y-1/2 items-center justify-center rounded-2xl border border-border bg-body/80 text-text-muted backdrop-blur-md transition-all duration-200
                   ${
                     currentPageIndex === 0
                       ? "opacity-30 cursor-not-allowed"
@@ -242,40 +489,13 @@ export const NotesViewerModal = ({
               </button>
             )}
 
-            <motion.div
-              key={`${episode.id}-page-${currentPageIndex}`}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: zoomLevel }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="relative flex max-h-full max-w-5xl items-center justify-center overflow-auto rounded-2xl border border-border bg-surface/40 shadow-2xl shadow-black/60 backdrop-blur-xs"
-            >
-              {currentPage?.imageUrl ? (
-                <div className="relative max-h-[72vh] w-auto">
-                  <Image
-                    src={currentPage.imageUrl}
-                    alt={currentPage.title || `Handwritten notes page ${currentPageIndex + 1}`}
-                    width={1200}
-                    height={900}
-                    priority
-                    className="max-h-[72vh] w-auto object-contain rounded-2xl"
-                  />
-                </div>
-              ) : (
-                <div className="flex h-96 w-96 flex-col items-center justify-center gap-3 text-text-muted">
-                  <FiBookOpen size={40} className="text-primary/60" />
-                  <p className="text-sm font-medium">No note page uploaded yet</p>
-                </div>
-              )}
-            </motion.div>
-
             {totalPages > 1 && (
               <button
                 type="button"
                 onClick={handleNextPage}
                 disabled={currentPageIndex === totalPages - 1}
                 className={`
-                  absolute right-2 sm:right-6 z-220 flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-2xl border border-border bg-body/80 text-text-muted backdrop-blur-md transition-all duration-200
+                  absolute right-2 sm:right-6 top-1/2 z-220 flex h-11 w-11 sm:h-14 sm:w-14 -translate-y-1/2 items-center justify-center rounded-2xl border border-border bg-body/80 text-text-muted backdrop-blur-md transition-all duration-200
                   ${
                     currentPageIndex === totalPages - 1
                       ? "opacity-30 cursor-not-allowed"
