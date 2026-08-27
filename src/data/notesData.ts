@@ -184,6 +184,15 @@ export const seasonsData: Season[] = [
             caption:
               "Handwritten explanation of deep learning, neural networks, real-world applications, and how data, computing power, GPUs, and the internet drove the deep learning revolution.",
           },
+          {
+            pageNumber: 6,
+            title: "Machine Learning vs Deep Learning",
+            slug: "machine-learning-vs-deep-learning",
+            imageUrl:
+              "/images/notes/s1-e2/s1-e2.6-difference-machine-learning-vs-deep-learning.webp",
+            caption:
+              "Handwritten comparison of machine learning and deep learning, covering data requirements, feature engineering, neural networks, workflows, and real-world examples.",
+          },
         ],
       },
     ],
