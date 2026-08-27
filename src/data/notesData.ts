@@ -53,7 +53,7 @@ export function getSeasonBySlug(seasonSlug: string): Season | undefined {
 
 export function getEpisodeBySlug(
   seasonSlug: string,
-  episodeSlug: string,
+  episodeSlug: string
 ): { season: Season; episode: Episode } | undefined {
   const season = getSeasonBySlug(seasonSlug);
   if (!season) return undefined;
@@ -67,7 +67,7 @@ export function getEpisodeBySlug(
 export function getPageBySlug(
   seasonSlug: string,
   episodeSlug: string,
-  pageSlug: string,
+  pageSlug: string
 ): { season: Season; episode: Episode; page: NotePage; pageIndex: number } | undefined {
   const result = getEpisodeBySlug(seasonSlug, episodeSlug);
   if (!result) return undefined;
@@ -176,6 +176,14 @@ export const seasonsData: Season[] = [
             caption:
               "Handwritten explanation of machine learning, where humans provide examples and training data so machines can learn patterns and make predictions.",
           },
+          {
+            pageNumber: 5,
+            title: "Deep Learning & Neural Networks",
+            slug: "deep-learning-neural-networks",
+            imageUrl: "/images/notes/s1-e2/s1-e2.5-deep-learning.webp",
+            caption:
+              "Handwritten explanation of deep learning, neural networks, real-world applications, and how data, computing power, GPUs, and the internet drove the deep learning revolution.",
+          },
         ],
       },
     ],
@@ -225,4 +233,3 @@ export const seasonsData: Season[] = [
     episodes: [],
   },
 ];
-
