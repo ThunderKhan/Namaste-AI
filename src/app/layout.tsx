@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono, Audiowide } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
@@ -21,46 +22,91 @@ const audiowide = Audiowide({
   subsets: ["latin"],
 });
 
-const BASE_URL = "https://namaste-ai-dev.vercel.app";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!;
+const SITE_NAME = "Namaste AI";
+const SITE_DESCRIPTION =
+  "Namaste AI — Handwritten notes, AI concepts, and real-world projects from the Namaste AI course by Akshay Saini (NamasteDev). Learn LLMs, RAG, AI agents, prompt engineering, and build AI-powered applications.";
 
 export const metadata: Metadata = {
-  title: "Namaste AI",
-  description:
-    "Namaste AI by Akshay Saini (Founder of NamasteDev) — Notes, learnings, and projects — exploring LLMs, RAG, AI agents, MCP, and AI-powered applications",
+  title: {
+    default: "Namaste AI — Learn AI Concepts & Build Real-World AI Projects",
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   keywords: [
-    "artificial-intelligence",
-    "ai",
-    "generative-ai",
+    "namaste ai",
+    "namaste ai course",
+    "namaste ai notes",
+    "namaste ai handwritten notes",
+    "namaste ai by akshay saini",
+    "namastedev",
+    "akshay saini ai course",
+    "artificial intelligence",
+    "machine learning",
+    "deep learning",
+    "neural networks",
+    "generative ai",
+    "gen ai",
+    "large language models",
     "llm",
-    "large-language-models",
-    "ai-applications",
-    "ai-agents",
-    "agentic-ai",
-    "rag",
-    "retrieval-augmented-generation",
-    "mcp",
-    "model-context-protocol",
-    "prompt-engineering",
-    "transformers",
+    "gpt",
     "chatgpt",
     "openai",
-    "machine-learning",
-    "ai-engineering",
-    "ai-native",
-    "software-engineering",
+    "gemini ai",
+    "claude ai",
+    "llama",
+    "open source llm",
+    "prompt engineering",
+    "fine tuning llm",
+    "rag",
+    "retrieval augmented generation",
+    "vector database",
+    "embeddings",
+    "transformers",
+    "attention mechanism",
+    "ai agents",
+    "agentic ai",
+    "mcp",
+    "model context protocol",
+    "ai tools",
+    "langchain",
+    "ai applications",
+    "ai projects",
+    "ai powered apps",
+    "build with ai",
+    "learn ai",
+    "ai tutorial",
+    "ai notes",
+    "ai handwritten notes",
+    "ai engineering",
+    "ai native",
+    "software engineering",
   ],
   authors: [{ name: "Chetan Nada", url: "https://www.linkedin.com/in/chetannada/" }],
+  creator: "Chetan Nada",
+  publisher: "Chetan Nada",
   openGraph: {
-    title: "Namaste AI",
-    description:
-      "Namaste AI by Akshay Saini (Founder of NamasteDev) — Notes, learnings, and projects — exploring LLMs, RAG, AI agents, MCP, and AI-powered applications",
+    title: "Namaste AI — Learn AI Concepts & Build Real-World AI Projects",
+    description: SITE_DESCRIPTION,
+    url: BASE_URL,
+    siteName: SITE_NAME,
+    locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/images/hero-ai.webp",
+        width: 1200,
+        height: 630,
+        alt: "Namaste AI — Learn AI from concepts to real projects",
+      },
+    ],
   },
 
   generator: "Next.js",
   metadataBase: new URL(BASE_URL),
   alternates: {
-    canonical: BASE_URL,
+    canonical: "/",
   },
   robots: {
     index: true,
@@ -73,8 +119,27 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  other: {
-    referrer: "no-referrer",
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE_NAME,
+  url: BASE_URL,
+  description: SITE_DESCRIPTION,
+  author: {
+    "@type": "Person",
+    name: "Chetan Nada",
+    url: "https://www.linkedin.com/in/chetannada",
+    sameAs: [
+      "https://x.com/chetannada",
+      "https://github.com/chetannada",
+      "https://www.linkedin.com/in/chetannada",
+    ],
+  },
+  publisher: {
+    "@type": "Person",
+    name: "Chetan Nada",
   },
 };
 
@@ -89,6 +154,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${audiowide.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-body text-text">
+        <Script
+          id="json-ld-website"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <ThemeProvider>
           <Header />
           <main className="grow flex flex-col">{children}</main>
