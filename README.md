@@ -39,7 +39,7 @@ This repository is my **learning in public** journey, where I share my **handwri
 
 ✍️ **Handwritten Notes:**
 
-- 📄 **Roadmap about Namaste AI Course** [View Episode Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-1-welcome-to-namaste-ai/roadmap-about-namaste-ai-course)
+- 📄 **Roadmap about Namaste AI Course** [Hand Written Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-1-welcome-to-namaste-ai/roadmap-about-namaste-ai-course)
 
 ---
 
@@ -57,10 +57,11 @@ Explore the evolution of Artificial Intelligence and the breakthroughs that shap
 
 ✍️ **Handwritten Notes:**
 
-- 📄 **What Is Artificial Intelligence?** [View Episode Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/what-is-artificial-intelligence)
-- 📄 **The Evolution of Artificial Intelligence** [View Episode Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/the-evolution-of-artificial-intelligence)
-- 📄 **Rule-Based AI** [View Episode Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/rule-based-ai)
-- 📄 **Machine Learning** [View Episode Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/machine-learning)
+- 📄 **What Is Artificial Intelligence?** [Hand Written Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/what-is-artificial-intelligence)
+- 📄 **The Evolution of Artificial Intelligence** [Hand Written Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/the-evolution-of-artificial-intelligence)
+- 📄 **Rule-Based AI** [Hand Written Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/rule-based-ai)
+- 📄 **Machine Learning** [Hand Written Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/machine-learning)
+- 📄 **Deep Learning & Neural Networks** [Hand Written Notes 🚀](https://namaste-ai-dev.vercel.app/notes/season-1/episode-2-the-evolution-of-ai/deep-learning-neural-networks)
 
 ## 🌱 Structure of this Project
 
